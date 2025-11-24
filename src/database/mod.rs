@@ -5,12 +5,12 @@ use sqlx::postgres::PgPoolOptions;
 #[allow(dead_code)]
 #[derive(Clone)]
 pub struct AppState {
-    pub state: PgPool,
+    pub pool: PgPool,
 }
 
 impl AppState {
     pub fn new(pool: PgPool) -> Self {
-        Self { state: pool }
+        Self { pool }
     }
 }
 

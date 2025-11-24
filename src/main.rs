@@ -22,10 +22,12 @@ async fn start_server() -> Result<(), AppError> {
     info!("Database connection pool initialized");
     let db_pool = database::AppState::new(db_pool);
     let app = create_routing(db_pool);
+
     let listener = tokio::net::TcpListener::bind("127.0.0.1:3000")
         .await
         .map_err(|e| AppError::Validation(e.to_string()))?;
     info!("Server listening on port 3000");
+
     axum::serve(listener, app.into_make_service())
         .await
         .map_err(|e| AppError::Validation(e.to_string()))?;
