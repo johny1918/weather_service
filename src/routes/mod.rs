@@ -2,7 +2,7 @@ mod city;
 mod health_check;
 
 use crate::database::AppState;
-use crate::routes::city::insert_city;
+use crate::routes::city::{insert_cities, delete_cities, update_cities, get_cities};
 use crate::routes::health_check::health_check;
 use axum::{
     Router,
@@ -57,8 +57,10 @@ pub fn create_routing(state: AppState) -> Router {
         });
 
     Router::new()
-        .route("/add-city", post(insert_city))
-        .route("/cities/{id}", get(city::get_city))
+        .route("/add-city", post(insert_cities))
+        .route("/cities/{id}", get(get_cities))
+        .route("/update-city/{id}", post(update_cities))
+        .route("/delete-city/{id}", get(delete_cities))
         .route("/health", get(health_check))
         .layer(trace_layer)
         .with_state(state)
