@@ -57,7 +57,8 @@ pub fn create_routing(state: AppState) -> Router {
         });
 
     Router::new()
-        .route("/add_city", post(insert_city))
+        .route("/add-city", post(insert_city))
+        .route("/cities/{id}", get(city::get_city))
         .route("/health", get(health_check))
         .layer(trace_layer)
         .with_state(state)

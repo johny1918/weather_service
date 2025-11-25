@@ -1,3 +1,6 @@
+pub mod city_db;
+pub mod weather_db;
+
 use crate::errors::AppError;
 use sqlx::PgPool;
 use sqlx::postgres::PgPoolOptions;
