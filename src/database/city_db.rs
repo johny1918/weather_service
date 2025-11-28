@@ -38,6 +38,16 @@ pub async fn get_city(state: &AppState, id: i32)
     Ok(get)
 }
 
+pub async fn get_all_cities(state: &AppState) -> Result<Vec<OutputCityFromDB>, AppError> {
+    let get = sqlx::query_as::<_, OutputCityFromDB>(
+        r#"SELECT * FROM cities"#
+    )   .fetch_all(&state.pool)
+        .await
+        .map_err(|e| AppError::DatabaseError(e.to_string()))?;
+
+    Ok(get)
+}
+
 pub async fn update_city(state: &AppState, id: i32, data: &InputCityToDB) -> Result<OutputCityFromDB, AppError> {
     let update = sqlx::query_as::<_, OutputCityFromDB>(
         r#"UPDATE cities SET name = $1, country_code = $2,
