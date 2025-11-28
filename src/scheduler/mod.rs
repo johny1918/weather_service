@@ -3,8 +3,9 @@ use std::sync::Arc;
 use tokio_cron_scheduler::{Job, JobScheduler};
 use tracing::info;
 use crate::database::city_db::{get_all_cities, get_city, update_city};
+use crate::database::weather_db::insert_weather_data;
 use crate::errors::AppError;
-use crate::models::weather::WeatherApiClient;
+use crate::models::weather::{WeatherApiClient, WeatherDataInsert};
 
 
 pub struct WeatherScheduler {
@@ -59,6 +60,35 @@ async fn collect_weather_data(
     state: &AppState,
     weather_client: &WeatherApiClient,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    // Implementation: get all cities, fetch weather for each, store in DB
+    // 1. Get all cities from database
+    let cities = get_all_cities(state).await?;
+
+    // 2. For each city, fetch weather and insert
+    for city in cities {
+        match weather_client.fetch_current_weather(city.latitude, city.longitude).await {
+            Ok(weather) => {
+                // 3. Prepare data for insertion
+                let weather_insert = WeatherDataInsert {
+                    city_id: city.id,
+                    temperature: weather.temperature,
+                    humidity: weather.humidity,
+                    pressure: weather.pressure,
+                    weather_condition: weather.weather_condition.clone(),
+                    raw_data: serde_json::to_value(&weather)?, // Store full weather struct as JSON
+                };
+
+                // 4. Insert into database
+                if let Err(e) = insert_weather_data(state, &weather_insert).await {
+                    tracing::error!("Failed to insert weather for city {}: {}", city.name, e);
+                } else {
+                    tracing::info!("Weather data collected for {}", city.name);
+                }
+            }
+            Err(e) => {
+                tracing::error!("Failed to fetch weather for city {}: {}", city.name, e);
+            }
+        }
+    }
+
     Ok(())
 }

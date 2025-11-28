@@ -1,7 +1,8 @@
 use serde::{Deserialize, Serialize};
+use sqlx::FromRow;
 use crate::errors::AppError;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, FromRow)]
 pub struct WeatherData {
     pub temperature: f64,      // in Celsius
     pub humidity: u8,          // percentage
@@ -9,6 +10,25 @@ pub struct WeatherData {
     pub wind_speed: f64,       // m/s
     pub weather_condition: String, // e.g., "Clear", "Rain"
     pub timestamp: chrono::DateTime<chrono::Utc>,
+}
+
+#[derive(Debug, Serialize, Deserialize, FromRow)]
+pub struct WeatherDataOutput {
+    pub temperature: f64,      // in Celsius
+    pub humidity: i32,          // percentage
+    pub pressure: i32,         // hPa
+    pub weather_condition: String, // e.g., "Clear", "Rain"
+    pub recorded_at: chrono::DateTime<chrono::Utc>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct WeatherDataInsert {
+    pub city_id: i32,
+    pub temperature: f64,
+    pub humidity: u8,
+    pub pressure: u16,
+    pub weather_condition: String,
+    pub raw_data: serde_json::Value,
 }
 
 #[derive(Debug, Deserialize)]

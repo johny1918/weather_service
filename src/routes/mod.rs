@@ -1,5 +1,6 @@
 mod city;
 mod health_check;
+mod weather;
 
 use crate::database::AppState;
 use crate::routes::city::{insert_cities, delete_cities, update_cities, get_cities};
@@ -12,6 +13,7 @@ use axum::body::Body;
 use std::time::Duration;
 use tower_http::trace::TraceLayer;
 use tracing::Span;
+use crate::routes::weather::{get_weather, get_weather_by_id};
 
 pub fn create_routing(state: AppState) -> Router {
 
@@ -61,6 +63,8 @@ pub fn create_routing(state: AppState) -> Router {
         .route("/cities/{id}", get(get_cities))
         .route("/update-city/{id}", post(update_cities))
         .route("/delete-city/{id}", get(delete_cities))
+        .route("/weather", get(get_weather))
+        .route("/weather/{city_id}", get(get_weather_by_id))
         .route("/health", get(health_check))
         .layer(trace_layer)
         .with_state(state)
